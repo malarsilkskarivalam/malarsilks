@@ -123,10 +123,13 @@ export default function CheckoutPage() {
       }
 
       const orderData = {
+        user_id: user.id,
         user: user.id,
         orderItems: cart.map(item => ({
           name: item.name, qty: item.quantity,
-          image: item.image, price: item.price, product: item.id
+          image: item.image, price: item.price,
+          product_id: item.id,
+          product: item.id
         })),
         shippingAddress: { address: address.street, city: address.city, pincode: address.zipCode, phone: address.phone },
         paymentMethod,

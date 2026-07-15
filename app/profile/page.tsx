@@ -72,16 +72,18 @@ function ProfileContent() {
           })
           
           // Add ID to user if missing (for the put request)
-          if (!user?.id && profileData.data._id) {
+          const finalId = profileData.data.id || profileData.data._id
+          if (!user?.id && finalId) {
              login({
                ...user!,
-               id: profileData.data._id
+               id: finalId
              } as any)
           }
         }
 
         // Fetch orders
-        const ordersRes = await fetch(`${CONFIG.API.BASE_URL}/api/orders/myorders/${profileData.data._id}`)
+        const userId = profileData.data.id || profileData.data._id || user?.id
+        const ordersRes = await fetch(`${CONFIG.API.BASE_URL}/api/orders/myorders/${userId}`)
         const ordersData = await ordersRes.json()
         if (ordersData.success) {
           setOrders(ordersData.data.map((o: any) => ({ ...o, id: o.id || o._id })))
@@ -297,6 +299,95 @@ function ProfileContent() {
                           </span>
                         </div>
                       </div>
+
+                      {/* Live Tracking Stepper */}
+                      {order.status !== 'Cancelled' && (
+                        <div className="mb-6 bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">📍 Live Order Tracking</p>
+                          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-2">
+                            {/* Step 1: Placed */}
+                            <div className="flex items-center gap-3 md:flex-col md:text-center md:flex-1">
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                                ['Pending', 'Processing', 'Shipped', 'Delivered'].includes(order.status)
+                                  ? 'bg-emerald-500 text-white shadow-md shadow-emerald-200'
+                                  : 'bg-slate-200 text-slate-500'
+                              }`}>
+                                ✓
+                              </div>
+                              <div>
+                                <p className="text-xs font-bold text-slate-800">Order Placed</p>
+                                <p className="text-[9px] text-slate-400 font-medium">Order confirmed</p>
+                              </div>
+                            </div>
+                            
+                            {/* Line 1 */}
+                            <div className={`hidden md:block h-1 flex-1 -mt-5 rounded-full transition-all ${
+                              ['Processing', 'Shipped', 'Delivered'].includes(order.status) ? 'bg-emerald-500' : 'bg-slate-200'
+                            }`} />
+
+                            {/* Step 2: Processing */}
+                            <div className="flex items-center gap-3 md:flex-col md:text-center md:flex-1">
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                                ['Processing', 'Shipped', 'Delivered'].includes(order.status)
+                                  ? 'bg-emerald-500 text-white shadow-md shadow-emerald-200'
+                                  : order.status === 'Pending'
+                                  ? 'bg-amber-500 text-white animate-pulse shadow-md shadow-amber-200'
+                                  : 'bg-slate-200 text-slate-500'
+                              }`}>
+                                {['Processing', 'Shipped', 'Delivered'].includes(order.status) ? '✓' : '2'}
+                              </div>
+                              <div>
+                                <p className="text-xs font-bold text-slate-800">Processing</p>
+                                <p className="text-[9px] text-slate-400 font-medium">Preparing attire</p>
+                              </div>
+                            </div>
+
+                            {/* Line 2 */}
+                            <div className={`hidden md:block h-1 flex-1 -mt-5 rounded-full transition-all ${
+                              ['Shipped', 'Delivered'].includes(order.status) ? 'bg-emerald-500' : 'bg-slate-200'
+                            }`} />
+
+                            {/* Step 3: Shipped */}
+                            <div className="flex items-center gap-3 md:flex-col md:text-center md:flex-1">
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                                ['Shipped', 'Delivered'].includes(order.status)
+                                  ? 'bg-emerald-500 text-white shadow-md shadow-emerald-200'
+                                  : order.status === 'Processing'
+                                  ? 'bg-amber-500 text-white animate-pulse shadow-md shadow-amber-200'
+                                  : 'bg-slate-200 text-slate-500'
+                              }`}>
+                                {['Shipped', 'Delivered'].includes(order.status) ? '✓' : '3'}
+                              </div>
+                              <div>
+                                <p className="text-xs font-bold text-slate-800">Shipped</p>
+                                <p className="text-[9px] text-slate-400 font-medium">Attire dispatched</p>
+                              </div>
+                            </div>
+
+                            {/* Line 3 */}
+                            <div className={`hidden md:block h-1 flex-1 -mt-5 rounded-full transition-all ${
+                              order.status === 'Delivered' ? 'bg-emerald-500' : 'bg-slate-200'
+                            }`} />
+
+                            {/* Step 4: Delivered */}
+                            <div className="flex items-center gap-3 md:flex-col md:text-center md:flex-1">
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+                                order.status === 'Delivered'
+                                  ? 'bg-emerald-500 text-white shadow-md shadow-emerald-200'
+                                  : order.status === 'Shipped'
+                                  ? 'bg-amber-500 text-white animate-pulse shadow-md shadow-amber-200'
+                                  : 'bg-slate-200 text-slate-500'
+                              }`}>
+                                {order.status === 'Delivered' ? '✓' : '4'}
+                              </div>
+                              <div>
+                                <p className="text-xs font-bold text-slate-800">Delivered</p>
+                                <p className="text-[9px] text-slate-400 font-medium">Attire received</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
 
                       <div className="space-y-4">
                         {order.orderItems.map((item, idx) => (

@@ -7,6 +7,7 @@ const createOrder = async (req, res) => {
     try {
         const {
             user_id,
+            user, // fallback for legacy frontends
             orderItems,
             shippingAddress,
             paymentMethod,
@@ -17,18 +18,21 @@ const createOrder = async (req, res) => {
             return res.status(400).json({ message: 'No order items' });
         }
 
+        const finalUserId = user_id || user;
+
         const result = await pool.query(
             'INSERT INTO orders (user_id, shipping_address, payment_method, total_price) VALUES ($1, $2, $3, $4) RETURNING *, total_price AS "totalPrice", created_at AS "createdAt", shipping_address AS "shippingAddress", payment_method AS "paymentMethod"',
-            [user_id || null, JSON.stringify(shippingAddress), paymentMethod, totalPrice]
+            [finalUserId || null, JSON.stringify(shippingAddress), paymentMethod, totalPrice]
         );
         
         const order = result.rows[0];
         
         // Insert order items
         for (const item of orderItems) {
+            const finalProductId = item.product_id || item.product || null;
             await pool.query(
                 'INSERT INTO order_items (order_id, product_id, name, qty, image, price) VALUES ($1, $2, $3, $4, $5, $6)',
-                [order.id, item.product_id || null, item.name, item.qty, item.image, item.price]
+                [order.id, finalProductId, item.name, item.qty, item.image, item.price]
             );
         }
 
