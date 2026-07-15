@@ -43,6 +43,7 @@ router.get('/users/:id', getUser);
 router.delete('/users/:id', protect, deleteUser);
 router.get('/submissions', protect, getAllSubmissions);
 router.put('/submissions/:id', protect, updateGalleryStatus);
+router.delete('/submissions/:id', protect, deleteUser);
 
 // Product Routes
 router.post('/products', protect, upload.single('image'), addProduct);
