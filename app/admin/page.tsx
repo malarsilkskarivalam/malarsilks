@@ -57,6 +57,7 @@ interface RegisteredUser {
   pincode?: string
   createdAt: string
   created_at?: string
+  role?: string
 }
 
 interface AdminUser {
@@ -1089,11 +1090,23 @@ export default function AdminPage() {
                               )}
                             </div>
                           </div>
-                          <div className="text-right flex flex-col justify-end">
-                            <p className="text-xs text-muted-foreground">Registered on</p>
-                            <p className="text-sm font-medium">
-                              {user.createdAt || user.created_at ? new Date((user.createdAt || user.created_at) as string).toLocaleDateString() : 'Recent'}
-                            </p>
+                          <div className="text-right flex flex-col justify-between items-end">
+                            <div>
+                              <p className="text-xs text-muted-foreground">Registered on</p>
+                              <p className="text-sm font-medium">
+                                {user.createdAt || user.created_at ? new Date((user.createdAt || user.created_at) as string).toLocaleDateString() : 'Recent'}
+                              </p>
+                            </div>
+                            {user.role !== 'admin' && (
+                              <Button 
+                                variant="destructive" 
+                                size="sm" 
+                                onClick={() => handleDeleteCustomer(user.id || user._id)}
+                                className="mt-2 h-8 rounded-lg"
+                              >
+                                Delete Customer
+                              </Button>
+                            )}
                           </div>
                         </div>
                       </div>
