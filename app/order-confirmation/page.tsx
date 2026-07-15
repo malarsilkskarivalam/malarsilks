@@ -73,7 +73,7 @@ export default function OrderConfirmationPage() {
           {/* Action Buttons */}
           <div className="relative z-10 flex flex-col sm:flex-row gap-4 justify-center">
             <Link
-              href="/profile"
+              href="/profile?tab=orders"
               className="px-8 py-4 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-2xl font-bold text-lg hover:from-red-700 hover:to-red-800 shadow-xl shadow-red-500/20 hover:shadow-red-500/40 hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 group"
             >
               Track Order
